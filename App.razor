@@ -1,5 +1,4 @@
 ﻿@inject IJSRuntime JSRuntime
-@inject QueryStringManager QSManager
 
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
@@ -11,11 +10,3 @@
         </LayoutView>
     </NotFound>
 </Router>
-
-@code {
-
-    protected override void OnInitialized()
-    {
-        JSRuntime.InvokeVoidAsync("queryStringHelper.Initialise", DotNetObjectReference.Create<QueryStringManager>(QSManager));
-    }
-}

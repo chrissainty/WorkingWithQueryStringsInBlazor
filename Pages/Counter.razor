@@ -1,49 +1,47 @@
 ﻿@page "/counter"
-@inject QueryStringManager QSManager
+@inject NavigationManager NavManager
 
 <h1>Counter</h1>
 
+<hr />
 <p>Current count: @currentCount</p>
-<p>Current count as string: @currentCountAsString</p>
-<p>Current count as decimal: @currentCountAsDecimal</p>
-<p>Missing querystring: @missingQuerystring</p>
+<hr />
+<p>Initial count as string: @initialCountAsString</p>
+<p>Initial count as decimal: @initialCountAsDecimal</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="@(() => currentCount++)">Click me</button>
 
 <hr />
 
-<a href="/Counter?startingCount=10">Start counter at 10.</a>
-<a href="/Counter?startingCount=20">Start counter at 20.</a>
-<a href="/Counter?startingCount=30">Start counter at 30.</a>
+<a href="/Counter?initialCount=10">Start counter at 10.</a> |
+<a href="/Counter?initialCount=20">Start counter at 20.</a> |
+<a href="/Counter?initialCount=30">Start counter at 30.</a>
+
+<hr />
+
+<button class="btn btn-primary" @onclick="@(() => NavManager.NavigateTo("Counter?initialCount=10"))">Start Counter at 10</button>
+<button class="btn btn-primary" @onclick="@(() => NavManager.NavigateTo("Counter?initialCount=20"))">Start Counter at 20</button>
+<button class="btn btn-primary" @onclick="@(() => NavManager.NavigateTo("Counter?initialCount=30"))">Start Counter at 30</button>
 
 @code {
     private int currentCount = 0;
-    private string currentCountAsString = "";
-    private decimal currentCountAsDecimal = 0m;
-    private string missingQuerystring;
+    private string initialCountAsString = "";
+    private decimal initialCountAsDecimal = 0m;
 
     protected override void OnInitialized()
     {
-        QSManager.TryGetQueryString<int>("startingCount", out currentCount);
-        QSManager.TryGetQueryString<string>("startingCount", out currentCountAsString);
-        QSManager.TryGetQueryString<decimal>("startingCount", out currentCountAsDecimal);
-        QSManager.TryGetQueryString<string>("missing", out missingQuerystring);
-
-        QSManager.QueryStringChanged += UpdateQueryStringValues;
+        GetQueryStringValues();
+        NavManager.LocationChanged += (o, e) => 
+        {
+            GetQueryStringValues();
+            StateHasChanged();
+        };
     }
 
-    private void UpdateQueryStringValues(object o, QueryStringChangedEventArgs args)
+    private void GetQueryStringValues()
     {
-        QSManager.TryGetQueryString<int>(args.QueryStringKeyValuePairs, "startingCount", out currentCount);
-        QSManager.TryGetQueryString<string>(args.QueryStringKeyValuePairs, "startingCount", out currentCountAsString);
-        QSManager.TryGetQueryString<decimal>(args.QueryStringKeyValuePairs, "startingCount", out currentCountAsDecimal);
-        QSManager.TryGetQueryString<string>(args.QueryStringKeyValuePairs, "missing", out missingQuerystring);
-
-        StateHasChanged();
-    }
-
-    private void IncrementCount()
-    {
-        currentCount++;
+        NavManager.TryGetQueryString<int>("initialCount", out currentCount);
+        NavManager.TryGetQueryString<string>("initialCount", out initialCountAsString);
+        NavManager.TryGetQueryString<decimal>("initialCount", out initialCountAsDecimal);
     }
 }
