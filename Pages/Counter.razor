@@ -1,0 +1,49 @@
+﻿@page "/counter"
+@inject QueryStringManager QSManager
+
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+<p>Current count as string: @currentCountAsString</p>
+<p>Current count as decimal: @currentCountAsDecimal</p>
+<p>Missing querystring: @missingQuerystring</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<hr />
+
+<a href="/Counter?startingCount=10">Start counter at 10.</a>
+<a href="/Counter?startingCount=20">Start counter at 20.</a>
+<a href="/Counter?startingCount=30">Start counter at 30.</a>
+
+@code {
+    private int currentCount = 0;
+    private string currentCountAsString = "";
+    private decimal currentCountAsDecimal = 0m;
+    private string missingQuerystring;
+
+    protected override void OnInitialized()
+    {
+        QSManager.TryGetQueryString<int>("startingCount", out currentCount);
+        QSManager.TryGetQueryString<string>("startingCount", out currentCountAsString);
+        QSManager.TryGetQueryString<decimal>("startingCount", out currentCountAsDecimal);
+        QSManager.TryGetQueryString<string>("missing", out missingQuerystring);
+
+        QSManager.QueryStringChanged += UpdateQueryStringValues;
+    }
+
+    private void UpdateQueryStringValues(object o, QueryStringChangedEventArgs args)
+    {
+        QSManager.TryGetQueryString<int>(args.QueryStringKeyValuePairs, "startingCount", out currentCount);
+        QSManager.TryGetQueryString<string>(args.QueryStringKeyValuePairs, "startingCount", out currentCountAsString);
+        QSManager.TryGetQueryString<decimal>(args.QueryStringKeyValuePairs, "startingCount", out currentCountAsDecimal);
+        QSManager.TryGetQueryString<string>(args.QueryStringKeyValuePairs, "missing", out missingQuerystring);
+
+        StateHasChanged();
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
